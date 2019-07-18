@@ -1,4 +1,4 @@
-# HomeAssistant-Tesla-CustomComponent
+# HomeAssistant-TeslaCustomComponent
 Custom Tesla component written in Python3 for Home Assistant. Controls and reads status of your Tesla.
 The original Tesla component has issues with the wakeup feature. This component fixes that issue.
 NOTE: The climate works only for Home Assistant 0.96 and later due to the climate platform redo the core developers did.
