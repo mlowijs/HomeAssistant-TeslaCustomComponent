@@ -9,14 +9,14 @@ import logging
 from custom_components.tesla_cc import (
     DATA_MANAGER, DOMAIN, PLATFORM_ID, TeslaDevice)
 from homeassistant.components.climate import (ClimateDevice)
-from homeassistant.components.climate.const import (SUPPORT_ON_OFF, SUPPORT_TARGET_TEMPERATURE)
+from homeassistant.components.climate.const import (HVAC_MODE_OFF, HVAC_MODE_AUTO, SUPPORT_TARGET_TEMPERATURE)
 from homeassistant.const import (ATTR_TEMPERATURE, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
 _LOGGER = logging.getLogger(__name__)
 
 DEPENDENCIES = [DOMAIN]
 
-SUPPORT_FLAGS = SUPPORT_ON_OFF | SUPPORT_TARGET_TEMPERATURE
+SUPPORT_FLAGS = SUPPORT_TARGET_TEMPERATURE
 
 def setup_platform(hass, config, add_entities, discovery_info):
     """Set up the Tesla climate platform."""
@@ -46,18 +46,17 @@ def update_climate(func):
 class TeslaClimateDevice(TeslaDevice, ClimateDevice):
     def __init__(self, hass, data_manager, vehicle):
         super().__init__(hass, data_manager, vehicle)
-
         _LOGGER.debug('Created climate device for {}.'.format(vehicle.vin))
 
-    @update_climate
-    def turn_on(self):
-        self._vehicle.climate.start_climate()
-        _LOGGER.debug('Turned climate on for {}.'.format(self._vehicle.vin))
-
-    @update_climate
-    def turn_off(self):
-        self._vehicle.climate.stop_climate()
-        _LOGGER.debug('Turned climate off for {}.'.format(self._vehicle.vin))
+    def set_hvac_mode(self, hvac_mode):
+        """Set new target hvac mode."""
+        _LOGGER.debug('Setting HVAC mode to {}.'.format(hvac_mode))
+        if hvac_mode == HVAC_MODE_OFF:
+            self._vehicle.climate.stop_climate()
+            _LOGGER.debug('Set HVAC mode to {}.'.format(hvac_mode))
+        else:
+            self._vehicle.climate.start_climate()
+            _LOGGER.debug('Set HVAC mode to {}.'.format(hvac_mode))
 
     @update_climate
     def set_temperature(self, **kwargs):
@@ -86,8 +85,19 @@ class TeslaClimateDevice(TeslaDevice, ClimateDevice):
         return TEMP_CELSIUS if self._data['gui']['gui_temperature_units'] == 'C' else TEMP_FAHRENHEIT
 
     @property
-    def is_on(self):
-        return self._data['climate']['is_climate_on']
+    def hvac_mode(self):
+        """Return current operation."""
+        if self._data['climate']['is_climate_on']:
+            return HVAC_MODE_AUTO
+
+        return HVAC_MODE_OFF
+
+    @property
+    def hvac_modes(self):
+        hvac_modes = [HVAC_MODE_OFF, HVAC_MODE_AUTO]
+        _LOGGER.info('hvac_modes(): ' + str(hvac_modes))
+        # Return the list of available operation modes.
+        return hvac_modes
 
     @property
     def current_temperature(self):
