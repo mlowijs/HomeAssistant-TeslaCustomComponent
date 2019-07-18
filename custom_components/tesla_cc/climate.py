@@ -9,7 +9,7 @@ import logging
 from custom_components.tesla_cc import (
     DATA_MANAGER, DOMAIN, PLATFORM_ID, TeslaDevice)
 from homeassistant.components.climate import (ClimateDevice)
-from homeassistant.components.climate.const import (HVAC_MODE_OFF, HVAC_MODE_AUTO, SUPPORT_TARGET_TEMPERATURE)
+from homeassistant.components.climate.const import (HVAC_MODE_OFF, HVAC_MODE_HEAT, SUPPORT_TARGET_TEMPERATURE)
 from homeassistant.const import (ATTR_TEMPERATURE, TEMP_CELSIUS, TEMP_FAHRENHEIT)
 
 _LOGGER = logging.getLogger(__name__)
@@ -51,11 +51,11 @@ class TeslaClimateDevice(TeslaDevice, ClimateDevice):
     def set_hvac_mode(self, hvac_mode):
         """Set new target hvac mode."""
         _LOGGER.debug('Setting HVAC mode to {}.'.format(hvac_mode))
-        if hvac_mode == HVAC_MODE_AUTO:
-            self._vehicle.climate.start_climate()
-            _LOGGER.debug('Set HVAC mode to {}.'.format(hvac_mode))
         if hvac_mode == HVAC_MODE_OFF:
             self._vehicle.climate.stop_climate()
+            _LOGGER.debug('Set HVAC mode to {}.'.format(hvac_mode))
+        else:
+            self._vehicle.climate.start_climate()
             _LOGGER.debug('Set HVAC mode to {}.'.format(hvac_mode))
 
     @update_climate
@@ -88,13 +88,13 @@ class TeslaClimateDevice(TeslaDevice, ClimateDevice):
     def hvac_mode(self):
         """Return current operation."""
         if self._data['climate']['is_climate_on']:
-            return HVAC_MODE_AUTO
+            return HVAC_MODE_HEAT
 
         return HVAC_MODE_OFF
 
     @property
     def hvac_modes(self):
-        hvac_modes = [HVAC_MODE_OFF, HVAC_MODE_AUTO]
+        hvac_modes = [HVAC_MODE_OFF, HVAC_MODE_HEAT]
         _LOGGER.info('hvac_modes(): ' + str(hvac_modes))
         # Return the list of available operation modes.
         return hvac_modes
