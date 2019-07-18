@@ -1,0 +1,8 @@
+{
+  "domain": "tesla_cc",
+  "name": "Tesla Custom Component",
+  "documentation": "https://github.com/mlowijs/hass_tesla_v2",
+  "dependencies": [],
+  "codeowners": ["@mlowijs", "@robhofmann"],
+  "requirements": []
+}
